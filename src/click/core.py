@@ -2081,7 +2081,7 @@ class Parameter:
         | None = None,
         deprecated: bool | str = False,
     ) -> None:
-        cov = HomebrewCoverage(21, "Parameter_init")
+        cov = HomebrewCoverage(24, "Parameter_init")
 
         self.name: str | None
         self.opts: list[str]
@@ -2094,13 +2094,15 @@ class Parameter:
         # Default nargs to what the type tells us if we have that
         # information available.
         if nargs is None:
-            cov.taken(0) # remove?
+            cov.taken(0)
             if self.type.is_composite:
                 cov.taken(1)
                 nargs = self.type.arity
             else:
                 cov.taken(2)
                 nargs = 1
+        else:
+            cov.taken(3)
 
         self.required = required
         self.callback = callback
@@ -2115,85 +2117,85 @@ class Parameter:
         self.deprecated = deprecated
 
         if __debug__:
-            cov.taken(3) # remove?
+            cov.taken(4)
             if self.type.is_composite and nargs != self.type.arity:
-                cov.taken(4)
+                cov.taken(5)
                 raise ValueError(
                     f"'nargs' must be {self.type.arity} (or None) for"
                     f" type {self.type!r}, but it was {nargs}."
                 )
             else:
-                cov.taken(5)
+                cov.taken(6)
 
             # Skip no default or callable default.
             if not callable(default):
-                cov.taken(6)
+                cov.taken(7)
                 check_default = default
             else:
-                cov.taken(7)
+                cov.taken(8)
                 check_default = None
 
             if check_default is not None:
                 if multiple:
-                    cov.taken(8)
+                    cov.taken(9)
                     try:
                         # Only check the first value against nargs.
                         check_default = next(_check_iter(check_default), None)
                     except TypeError:
-                        cov.taken(9)
+                        cov.taken(10)
                         raise ValueError(
                             "'default' must be a list when 'multiple' is true."
                         ) from None
                 else:
-                    cov.taken(10)
+                    cov.taken(11)
 
                 # Can be None for multiple with empty default.
                 if nargs != 1 and check_default is not None:
-                    cov.taken(11)
+                    cov.taken(12)
                     try:
                         _check_iter(check_default)
                     except TypeError:
-                        cov.taken(12)
+                        cov.taken(13)
                         if multiple:
-                            cov.taken(13)
+                            cov.taken(14)
                             message = (
                                 "'default' must be a list of lists when 'multiple' is"
                                 " true and 'nargs' != 1."
                             )
                         else:
-                            cov.taken(14)
+                            cov.taken(15)
                             message = "'default' must be a list when 'nargs' != 1."
 
                         raise ValueError(message) from None
 
-                    if nargs > 1 and len(check_default) != nargs:                                                        
+                    if nargs > 1 and len(check_default) != nargs:
                         if multiple:
-                            cov.taken(15)
+                            cov.taken(16)
                             subject = "item length"
                         else:
-                            cov.taken(16)
+                            cov.taken(17)
                             subject = "length"
                         raise ValueError(
                             f"'default' {subject} must match nargs={nargs}."
                         )
-                    # else:
-                    #     cov.taken(17)
+                    else:
+                        cov.taken(18)
                 else:
-                    cov.taken(17)
-            # else:
-            #     cov.taken(19)
+                    cov.taken(19)
+            else:
+                cov.taken(20)
 
             if required and deprecated:
-                cov.taken(18)
+                cov.taken(21)
                 raise ValueError(
                     f"The {self.param_type_name} '{self.human_readable_name}' "
                     "is deprecated and still required. A deprecated "
                     f"{self.param_type_name} cannot be required."
                 )
             else:
-                cov.taken(19)
-        # else:
-        #     cov.taken(22)
+                cov.taken(22)
+        else:
+            cov.taken(23)
 
         cov.print_result()
 
