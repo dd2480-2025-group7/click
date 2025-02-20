@@ -561,6 +561,28 @@ def test_missing_option_string_cast():
     assert str(excinfo.value) == "Missing parameter: a"
 
 
+# -------------------------------------------------------------------
+# test 1 for format_message
+def test_format_message_missing_parameter():
+    from click.exceptions import MissingParameter
+    error = MissingParameter(param_type="parameter")
+    expected_message = "Missing parameter."
+    actual_message = error.format_message()
+
+    assert actual_message == expected_message, f"Expected '{expected_message}', but got '{actual_message}'"
+
+
+# test 2 for format_message
+def test_format_message_without_param_type():
+    from click.exceptions import MissingParameter
+    error = MissingParameter(param_type="")
+    expected_message = "Missing ."
+    actual_message = error.format_message()
+
+    assert actual_message == expected_message, f"Expected '{expected_message}', but got '{actual_message}'"
+# -------------------------------------------------------------------
+
+
 def test_missing_required_flag(runner):
     cli = click.Command(
         "cli", params=[click.Option(["--on/--off"], is_flag=True, required=True)]
