@@ -78,6 +78,14 @@ def test_deprecated_prompt(runner):
     with pytest.raises(ValueError, match="`deprecated` options cannot use `prompt`"):
         click.Option(["--a"], prompt=True, deprecated=True)
 
+def test_prompt_with_non_boolean_flag(runner):
+    with pytest.raises(TypeError, match="'prompt' is not valid for non-boolean flag."):
+        click.Option(["--a"], prompt=True, is_flag=True, flag_value="flag")
+
+def test_hide_input_boolean_flag(runner):
+    with pytest.raises(TypeError, match="'prompt' with 'hide_input' is not valid for boolean flag."):
+        click.Option(["--a"], prompt=True, is_flag=True, flag_value=True, hide_input=True)
+
 
 def test_invalid_nargs(runner):
     with pytest.raises(TypeError, match="nargs=-1"):
