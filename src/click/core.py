@@ -2581,8 +2581,7 @@ class Option(Parameter):
         deprecated: bool | str = False,
         **attrs: t.Any,
     ) -> None:
-        from homebrewcoverage.homebrewcoverage import HomebrewCoverage
-        cov = HomebrewCoverage(48,"Option_init")
+        cov = HomebrewCoverage(43,"Option_init")
 
         
         if help:
@@ -2620,9 +2619,10 @@ class Option(Parameter):
 
             if help is not None:
                 cov.taken(8)
+                help = help + deprecated_message
             else:
                 cov.taken(9)
-            help = help + deprecated_message if help is not None else deprecated_message
+                help = deprecated_message
         else:
             cov.taken(10)
 
@@ -2637,53 +2637,50 @@ class Option(Parameter):
         self._flag_needs_value = self.prompt is not None and not self.prompt_required
 
         if is_flag is None:
-            cov.taken(11)
             if flag_value is not None:
-                cov.taken(12)
+                cov.taken(11)
                 # Implicitly a flag because flag_value was set.
                 is_flag = True
             elif self._flag_needs_value:
-                cov.taken(13)
+                cov.taken(12)
                 # Not a flag, but when used as a flag it shows a prompt.
                 is_flag = False
             else:
-                cov.taken(14)
+                cov.taken(13)
                 # Implicitly a flag because flag options were given.
                 is_flag = bool(self.secondary_opts)
         elif is_flag is False and not self._flag_needs_value:
-            cov.taken(15)
+            cov.taken(14)
             # Not a flag, and prompt is not enabled, can be used as a
             # flag if flag_value is set.
             self._flag_needs_value = flag_value is not None
         else:
-            cov.taken(16)
+            cov.taken(15)
 
         self.default: t.Any | t.Callable[[], t.Any]
 
         if is_flag and default_is_missing and not self.required:
-            cov.taken(17)
             if multiple:
-                cov.taken(18)
+                cov.taken(16)
                 self.default = ()
             else:
-                cov.taken(19)
+                cov.taken(17)
                 self.default = False
         else:
-            cov.taken(20)
+            cov.taken(18)
 
         self.type: types.ParamType
         if is_flag and type is None:
-            cov.taken(21)
             if flag_value is None:
-                cov.taken(22)
+                cov.taken(19)
                 flag_value = not self.default
             else:
-                cov.taken(23)
+                cov.taken(20)
             # Re-guess the type from the flag value instead of the
             # default.
             self.type = types.convert_type(None, flag_value)
         else:
-            cov.taken(24)
+            cov.taken(21)
 
         self.is_flag: bool = is_flag
         self.is_bool_flag: bool = is_flag and isinstance(self.type, types.BoolParamType)
@@ -2692,19 +2689,18 @@ class Option(Parameter):
         # Counting
         self.count = count
         if count:
-            cov.taken(25)
             if type is None:
-                cov.taken(26)
+                cov.taken(22)
                 self.type = types.IntRange(min=0)
             else:
-                cov.taken(27)
+                cov.taken(23)
             if default_is_missing:
-                cov.taken(28)
+                cov.taken(24)
                 self.default = 0
             else:
-                cov.taken(29)
+                cov.taken(25)
         else:
-            cov.taken(30)
+            cov.taken(26)
 
         self.allow_from_autoenv = allow_from_autoenv
         self.help = help
@@ -2713,48 +2709,48 @@ class Option(Parameter):
         self.show_envvar = show_envvar
 
         if __debug__:
-            cov.taken(31)
             if deprecated and prompt:
-                cov.taken(32)
+                cov.taken(27)
                 raise ValueError("`deprecated` options cannot use `prompt`.")
             else:
-                cov.taken(33)
+                cov.taken(28)
             if self.nargs == -1:
-                cov.taken(34)
+                cov.taken(29)
                 raise TypeError("nargs=-1 is not supported for options.")
             else:
-                cov.taken(35)
+                cov.taken(30)
             if self.prompt and self.is_flag and not self.is_bool_flag:
-                cov.taken(36)
+                cov.taken(31)
                 raise TypeError("'prompt' is not valid for non-boolean flag.")
             else:
-                cov.taken(37)
+                cov.taken(32)
             if not self.is_bool_flag and self.secondary_opts:
-                cov.taken(38)
+                cov.taken(33)
                 raise TypeError("Secondary flag is not valid for non-boolean flag.")
             else:
-                cov.taken(39)
+                cov.taken(34)
             if self.is_bool_flag and self.hide_input and self.prompt is not None:
-                cov.taken(40)
+                cov.taken(35)
                 raise TypeError(
                     "'prompt' with 'hide_input' is not valid for boolean flag."
                 )
             else:
-                cov.taken(41)
+                cov.taken(36)
             if self.count:
-                cov.taken(42)
                 if self.multiple:
-                    cov.taken(43)
+                    cov.taken(37)
                     raise TypeError("'count' is not valid with 'multiple'.")
                 else:
-                    cov.taken(44)
+                    cov.taken(38)
                 if self.is_flag:
-                    cov.taken(45)
+                    cov.taken(39)
                     raise TypeError("'count' is not valid with 'is_flag'.")
                 else:
-                    cov.taken(46)
+                    cov.taken(40)
             else:
-                cov.taken(47)
+                cov.taken(41)
+        else:
+            cov.taken(42)
         cov.print_result()
 
     def to_info_dict(self) -> dict[str, t.Any]:
