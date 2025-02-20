@@ -1,0 +1,3 @@
+Branch coverage: 3 / 10
+Branch coverage: 30.0 %
+Branch 0 taken: False Branch 1 taken: True Branch 2 taken: True Branch 3 taken: False Branch 4 taken: False Branch 5 taken: False Branch 6 taken: False Branch 7 taken: False Branch 8 taken: False Branch 9 taken: True 

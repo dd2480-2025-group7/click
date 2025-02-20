@@ -1,0 +1,3 @@
+Branch coverage: 16 / 21
+Branch coverage: 76.19047619047619 %
+Branch 0 taken: True Branch 1 taken: True Branch 2 taken: True Branch 3 taken: True Branch 4 taken: False Branch 5 taken: True Branch 6 taken: True Branch 7 taken: True Branch 8 taken: True Branch 9 taken: True Branch 10 taken: True Branch 11 taken: True Branch 12 taken: False Branch 13 taken: False Branch 14 taken: False Branch 15 taken: True Branch 16 taken: True Branch 17 taken: True Branch 18 taken: True Branch 19 taken: True Branch 20 taken: False 
