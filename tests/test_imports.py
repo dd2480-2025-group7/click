@@ -49,6 +49,7 @@ ALLOWED_IMPORTS = {
     "typing",
     "types",
     "gettext",
+    "homebrewcoverage.homebrewcoverage",
 }
 
 if WIN:

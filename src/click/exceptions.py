@@ -10,6 +10,8 @@ from .globals import resolve_color_default
 from .utils import echo
 from .utils import format_filename
 
+from homebrewcoverage.homebrewcoverage import HomebrewCoverage
+
 if t.TYPE_CHECKING:
     from .core import Command
     from .core import Context
@@ -158,43 +160,79 @@ class MissingParameter(BadParameter):
         self.param_type = param_type
 
     def format_message(self) -> str:
+        cov = HomebrewCoverage(18, "MissingParameter_format_message")
         if self.param_hint is not None:
+            cov.taken(0)
             param_hint: str | None = self.param_hint
         elif self.param is not None:
+            cov.taken(1)
             param_hint = self.param.get_error_hint(self.ctx)  # type: ignore
         else:
+            cov.taken(2)
             param_hint = None
 
         param_hint = _join_param_hints(param_hint)
-        param_hint = f" {param_hint}" if param_hint else ""
+
+        # param_hint = f" {param_hint}" if param_hint else ""
+        # The code line above was rewritten into this:
+        if param_hint:
+            cov.taken(3)
+            param_hint = f" {param_hint}"
+        else:
+            cov.taken(4)
+            param_hint = ""
 
         param_type = self.param_type
         if param_type is None and self.param is not None:
+            cov.taken(5)
             param_type = self.param.param_type_name
+        else:
+            cov.taken(6)
 
         msg = self.message
         if self.param is not None:
+            cov.taken(7)
             msg_extra = self.param.type.get_missing_message(
                 param=self.param, ctx=self.ctx
             )
             if msg_extra:
+                # cov.taken(8)
                 if msg:
+                    cov.taken(8)
                     msg += f". {msg_extra}"
                 else:
+                    cov.taken(9)
                     msg = msg_extra
+            else:
+                cov.taken(10)
+        else:
+            cov.taken(11)
 
-        msg = f" {msg}" if msg else ""
+        # msg = f" {msg}" if msg else ""
+        # The code line above was rewritten into this:
+        if msg:
+            cov.taken(12)
+            msg = f" {msg}"
+        else:
+            cov.taken(13)
+            msg = ""
 
         # Translate param_type for known types.
         if param_type == "argument":
+            cov.taken(14)
             missing = _("Missing argument")
         elif param_type == "option":
+            cov.taken(15)
             missing = _("Missing option")
         elif param_type == "parameter":
+            cov.taken(16)
             missing = _("Missing parameter")
         else:
+            cov.taken(17)
             missing = _("Missing {param_type}").format(param_type=param_type)
 
+
+        cov.print_result()
         return f"{missing}{param_hint}.{msg}"
 
     def __str__(self) -> str:

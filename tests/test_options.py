@@ -78,6 +78,14 @@ def test_deprecated_prompt(runner):
     with pytest.raises(ValueError, match="`deprecated` options cannot use `prompt`"):
         click.Option(["--a"], prompt=True, deprecated=True)
 
+def test_prompt_with_non_boolean_flag(runner):
+    with pytest.raises(TypeError, match="'prompt' is not valid for non-boolean flag."):
+        click.Option(["--a"], prompt=True, is_flag=True, flag_value="flag")
+
+def test_hide_input_boolean_flag(runner):
+    with pytest.raises(TypeError, match="'prompt' with 'hide_input' is not valid for boolean flag."):
+        click.Option(["--a"], prompt=True, is_flag=True, flag_value=True, hide_input=True)
+
 
 def test_invalid_nargs(runner):
     with pytest.raises(TypeError, match="nargs=-1"):
@@ -551,6 +559,28 @@ def test_missing_option_string_cast():
         click.Option(["-a"], required=True).process_value(ctx, None)
 
     assert str(excinfo.value) == "Missing parameter: a"
+
+
+# -------------------------------------------------------------------
+# test 1 for format_message
+def test_format_message_missing_parameter():
+    from click.exceptions import MissingParameter
+    error = MissingParameter(param_type="parameter")
+    expected_message = "Missing parameter."
+    actual_message = error.format_message()
+
+    assert actual_message == expected_message, f"Expected '{expected_message}', but got '{actual_message}'"
+
+
+# test 2 for format_message
+def test_format_message_without_param_type():
+    from click.exceptions import MissingParameter
+    error = MissingParameter(param_type="")
+    expected_message = "Missing ."
+    actual_message = error.format_message()
+
+    assert actual_message == expected_message, f"Expected '{expected_message}', but got '{actual_message}'"
+# -------------------------------------------------------------------
 
 
 def test_missing_required_flag(runner):
@@ -1061,3 +1091,33 @@ def test_duplicate_names_warning(runner, opts_one, opts_two):
 
     with pytest.warns(UserWarning):
         runner.invoke(cli, [])
+
+
+@pytest.mark.parametrize(
+    ("multiple", "nargs", "default", "expected_message"),
+    [
+        (
+            False,  # multiple
+            2,  # nargs
+            42,  # default (not a list)
+            "'default' must be a list when 'nargs' != 1.",
+        ),
+        (
+            True,  # multiple
+            2,  # nargs
+            [
+                "test string which is not a list in the list"
+            ],  # default (list of non-lists)
+            "'default' must be a list of lists when 'multiple' is true"
+            " and 'nargs' != 1.",
+        ),
+    ],
+)
+def test_default_type_error_raises(multiple, nargs, default, expected_message):
+    with pytest.raises(ValueError, match=expected_message):
+        click.Option(
+            ["--test"],
+            multiple=multiple,
+            nargs=nargs,
+            default=default,
+        )
