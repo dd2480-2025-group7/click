@@ -9,6 +9,7 @@ import sys
 import typing as t
 from types import TracebackType
 from weakref import WeakKeyDictionary
+from homebrewcoverage.homebrewcoverage import HomebrewCoverage
 
 CYGWIN = sys.platform.startswith("cygwin")
 WIN = sys.platform.startswith("win")
@@ -380,31 +381,54 @@ def open_stream(
 
     # Standard streams first. These are simple because they ignore the
     # atomic flag. Use fsdecode to handle Path("-").
+    cov = HomebrewCoverage(26, "open_stream")
     if os.fsdecode(filename) == "-":
         if any(m in mode for m in ["w", "a", "x"]):
             if binary:
+                cov.taken(0)
                 return get_binary_stdout(), False
+            else:
+                cov.taken(1)
             return get_text_stdout(encoding=encoding, errors=errors), False
+        else: 
+            cov.taken(2)
         if binary:
+            cov.taken(3)
             return get_binary_stdin(), False
+        else:
+            cov.taken(4)
         return get_text_stdin(encoding=encoding, errors=errors), False
+    else:
+        cov.taken(5)
 
     # Non-atomic writes directly go out through the regular open functions.
     if not atomic:
+        cov.taken(6)
         return _wrap_io_open(filename, mode, encoding, errors), True
+    else: 
+        cov.taken(7)
 
     # Some usability stuff for atomic writes
     if "a" in mode:
+        cov.taken(8)
         raise ValueError(
             "Appending to an existing file is not supported, because that"
             " would involve an expensive `copy`-operation to a temporary"
             " file. Open the file in normal `w`-mode and copy explicitly"
             " if that's what you're after."
         )
+    else:
+        cov.taken(9)
     if "x" in mode:
+        cov.taken(10)
         raise ValueError("Use the `overwrite`-parameter instead.")
+    else:
+        cov.taken(11)
     if "w" not in mode:
+        cov.taken(12)
         raise ValueError("Atomic writes only make sense with `w`-mode.")
+    else:
+        cov.taken(13)
 
     # Atomic writes are more complicated.  They work by opening a file
     # as a proxy in the same folder and then using the fdopen
@@ -416,12 +440,16 @@ def open_stream(
     try:
         perm: int | None = os.stat(filename).st_mode
     except OSError:
+        cov.taken(14)
         perm = None
 
     flags = os.O_RDWR | os.O_CREAT | os.O_EXCL
 
     if binary:
+        cov.taken(15)
         flags |= getattr(os, "O_BINARY", 0)
+    else:
+        cov.taken(16)
 
     while True:
         tmp_filename = os.path.join(
@@ -432,6 +460,30 @@ def open_stream(
             fd = os.open(tmp_filename, flags, 0o666 if perm is None else perm)
             break
         except OSError as e:
+            cov.taken(17)
+            taken = False
+            if e.errno == errno.EEXIST:
+                cov.taken(18)
+                taken = True
+                
+            else:
+                condition_met = os.name == "nt"
+                if condition_met:
+                    cov.taken(19)
+                    condition_met = e.errno == errno.EACCES
+                    if condition_met:
+                        cov.taken(20)
+                        condition_met = os.path.isdir(e.filename)
+                        if condition_met:
+                            cov.taken(21)
+                            condition_met = os.access(e.filename, os.W_OK)
+                            if condition_met:
+                                cov.taken(22)
+                                taken = True
+                                
+            if not taken:
+                cov.taken(23)
+            
             if e.errno == errno.EEXIST or (
                 os.name == "nt"
                 and e.errno == errno.EACCES
@@ -442,10 +494,15 @@ def open_stream(
             raise
 
     if perm is not None:
+        cov.taken(24)
         os.chmod(tmp_filename, perm)  # in case perm includes bits in umask
+    else:
+        cov.taken(25)
 
     f = _wrap_io_open(fd, mode, encoding, errors)
     af = _AtomicFile(f, tmp_filename, os.path.realpath(filename))
+
+    cov.print_result()
     return t.cast(t.IO[t.Any], af), True
 
 
