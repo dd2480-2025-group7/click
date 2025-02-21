@@ -446,7 +446,7 @@ def open_stream(
     flags = os.O_RDWR | os.O_CREAT | os.O_EXCL
 
     if binary:
-        cov.taken(15);
+        cov.taken(15)
         flags |= getattr(os, "O_BINARY", 0)
     else:
         cov.taken(16)
@@ -494,7 +494,7 @@ def open_stream(
             raise
 
     if perm is not None:
-        cov.taken(24);
+        cov.taken(24)
         os.chmod(tmp_filename, perm)  # in case perm includes bits in umask
     else:
         cov.taken(25)
@@ -502,7 +502,7 @@ def open_stream(
     f = _wrap_io_open(fd, mode, encoding, errors)
     af = _AtomicFile(f, tmp_filename, os.path.realpath(filename))
 
-    cov.print_result();
+    cov.print_result()
     return t.cast(t.IO[t.Any], af), True
 
 
