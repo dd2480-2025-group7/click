@@ -75,11 +75,9 @@ from homebrewcoverage.homebrewcoverage import HomebrewCoverage
 
 def __getattr__(name: str) -> object:
     import warnings
-    # Increase the branch count from 1 to 10 to allow indices 0-9.
-    cov = HomebrewCoverage(10, "__getattr__")
+    cov = HomebrewCoverage(6, "__getattr__")
 
     if name == "BaseCommand":
-        cov.taken(1)
         from .core import _BaseCommand
 
         warnings.warn(
@@ -88,11 +86,10 @@ def __getattr__(name: str) -> object:
             DeprecationWarning,
             stacklevel=2,
         )
-        cov.taken(2)
+        cov.taken(1)
         return _BaseCommand
 
     if name == "MultiCommand":
-        cov.taken(3)
         from .core import _MultiCommand
 
         warnings.warn(
@@ -101,11 +98,10 @@ def __getattr__(name: str) -> object:
             DeprecationWarning,
             stacklevel=2,
         )
-        cov.taken(4)
+        cov.taken(2)
         return _MultiCommand
 
     if name == "OptionParser":
-        cov.taken(5)
         from .parser import _OptionParser
 
         warnings.warn(
@@ -114,11 +110,10 @@ def __getattr__(name: str) -> object:
             DeprecationWarning,
             stacklevel=2,
         )
-        cov.taken(6)
+        cov.taken(3)
         return _OptionParser
 
     if name == "__version__":
-        cov.taken(7)
         import importlib.metadata
         import warnings
 
@@ -129,9 +124,9 @@ def __getattr__(name: str) -> object:
             DeprecationWarning,
             stacklevel=2,
         )
-        cov.taken(8)
+        cov.taken(4)
         return importlib.metadata.version("click")
 
-    cov.taken(9)
+    cov.taken(5)
     cov.print_result()
     raise AttributeError(name)
