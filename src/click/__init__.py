@@ -70,12 +70,15 @@ from .utils import get_app_dir as get_app_dir
 from .utils import get_binary_stream as get_binary_stream
 from .utils import get_text_stream as get_text_stream
 from .utils import open_file as open_file
+from homebrewcoverage.homebrewcoverage import HomebrewCoverage
 
 
 def __getattr__(name: str) -> object:
     import warnings
+    cov = HomebrewCoverage(8, "__getattr__")
 
     if name == "BaseCommand":
+        cov.taken(0)
         from .core import _BaseCommand
 
         warnings.warn(
@@ -85,8 +88,11 @@ def __getattr__(name: str) -> object:
             stacklevel=2,
         )
         return _BaseCommand
+    else:
+        cov.taken(1)
 
     if name == "MultiCommand":
+        cov.taken(2)
         from .core import _MultiCommand
 
         warnings.warn(
@@ -96,8 +102,11 @@ def __getattr__(name: str) -> object:
             stacklevel=2,
         )
         return _MultiCommand
+    else:
+        cov.taken(3)
 
     if name == "OptionParser":
+        cov.taken(4)
         from .parser import _OptionParser
 
         warnings.warn(
@@ -107,8 +116,11 @@ def __getattr__(name: str) -> object:
             stacklevel=2,
         )
         return _OptionParser
+    else:
+        cov.taken(5)
 
     if name == "__version__":
+        cov.taken(6)
         import importlib.metadata
         import warnings
 
@@ -120,5 +132,8 @@ def __getattr__(name: str) -> object:
             stacklevel=2,
         )
         return importlib.metadata.version("click")
+    else:
+        cov.taken(7)
 
+    cov.print_result()
     raise AttributeError(name)
